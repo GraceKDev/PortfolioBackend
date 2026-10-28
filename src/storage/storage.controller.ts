@@ -61,9 +61,10 @@ export class StorageController {
     @ApiOkResponse({ type:String, isArray:true })
     @ApiNotFoundResponse({ description: "The requested blog file was not found" })
     @ApiBadRequestResponse({ description: "The blog file could not be retrieved" })
-    async getAllDevBlogs(): Promise<{ slug: string; content: string }[]> {
+    async getAllDevBlogs(): Promise<{ slug: string; content: string,date:Date | null }[]> {
         try {
             return await this.storageService.getAllDevBlogs();
+
         } catch (error) {
             const message =
                 error instanceof Error
@@ -78,7 +79,7 @@ export class StorageController {
     @ApiOkResponse({ type: String })
     @ApiNotFoundResponse({ description: "The requested blog file was not found" })
     @ApiBadRequestResponse({ description: "The blog file could not be retrieved" })
-    async getDevBlogFile(@Param("item") item: string): Promise<{ slug: string; content: string }> {
+    async getDevBlogFile(@Param("item") item: string): Promise<{ slug: string; content: string,date:Date | null }> {
         try {
             return await this.storageService.getDevBlog(item);
         } catch (error) {

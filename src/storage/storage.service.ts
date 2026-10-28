@@ -52,7 +52,7 @@ export class StorageService {
         return files;
     }
 
-    async getDevBlog(item: string): Promise<{ slug: string; content: string }> {
+    async getDevBlog(item: string): Promise<{ slug: string; content: string,date:Date | null }> {
         const bucket = process.env.S3_BUCKET_NAME;
         const devBlogPrefix = "blogs/Dev/";
         const blogImagePrefix = "blogs/Images";
@@ -86,12 +86,13 @@ export class StorageService {
             );
             content = content.replace(original, `![${alt}](${url})`);
         }
-        return { slug: item, content };
+        
+        return { slug: item, content:content, date: result.LastModified ?? null };
     }
 
-    async getAllDevBlogs(): Promise<{ slug: string; content: string }[]> {
+    async getAllDevBlogs(): Promise<{ slug: string; content: string,date:Date }[]> {
         const files = await this.listDevBlog();
-        
+
         const results = await Promise.allSettled(
             files.map(file => this.getDevBlog(file))
         );
@@ -101,6 +102,7 @@ export class StorageService {
                 (result): result is PromiseFulfilledResult<{
                     slug: string;
                     content: string;
+                    date:Date;
                 }> => result.status === "fulfilled"
             )
             .map(result => result.value);
