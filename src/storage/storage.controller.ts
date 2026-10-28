@@ -56,12 +56,29 @@ export class StorageController {
         return this.storageService.listDevBlog();
     }
 
+    @Get("blogs/dev/all")
+    @ApiOperation({ summary: "Retrieve all blog files from blogs/Dev" })
+    @ApiOkResponse({ type:String, isArray:true })
+    @ApiNotFoundResponse({ description: "The requested blog file was not found" })
+    @ApiBadRequestResponse({ description: "The blog file could not be retrieved" })
+    async getAllDevBlogs(): Promise<{ slug: string; content: string }[]> {
+        try {
+            return await this.storageService.getAllDevBlogs();
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Unable to retrieve the blog file";
+            throw new BadRequestException(message, { cause: error });
+        }
+    }
+
     @Get("blogs/dev/:item")
     @ApiOperation({ summary: "Retrieve a blog file from blogs/Dev" })
     @ApiOkResponse({ type: String })
     @ApiNotFoundResponse({ description: "The requested blog file was not found" })
     @ApiBadRequestResponse({ description: "The blog file could not be retrieved" })
-    async getDevBlogFile(@Param("item") item: string): Promise<string> {
+    async getDevBlogFile(@Param("item") item: string): Promise<{ slug: string; content: string }> {
         try {
             return await this.storageService.getDevBlog(item);
         } catch (error) {
@@ -70,7 +87,6 @@ export class StorageController {
                     cause: error,
                 });
             }
-
             const message =
                 error instanceof Error
                     ? error.message
